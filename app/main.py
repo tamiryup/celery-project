@@ -1,16 +1,20 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, Depends
+from sqlalchemy.orm import Session
 
-from .database import SessionLocal, engine, Base
+from app.database import SessionLocal, engine, Base
 from app.models.category import Category
 from app.models.excel_file import ExcelFile
+import app.deps as deps
+
+from app.services.category_service import category_service
 
 Base.metadata.create_all(bind=engine) # create db
 
 app = FastAPI()
 
-@app.get("/create-category")
-def create_category(category_name: str, region: str, type: str):
-    return {"message": category_name}
+@app.get("/create-category", status_code=200)
+def create_category(name: str, region: str, type: str, db: Session = Depends(deps.get_db)):
+    return category_service.create(db, name, region, type).id
 
 @app.post("/upload-file")
 def upload_file(category_name: str, file: UploadFile):
