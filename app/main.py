@@ -1,5 +1,11 @@
 from fastapi import FastAPI, UploadFile
 
+from .database import SessionLocal, engine, Base
+from app.models.category import Category
+from app.models.excel_file import ExcelFile
+
+Base.metadata.create_all(bind=engine) # create db
+
 app = FastAPI()
 
 @app.get("/create-category")
