@@ -27,6 +27,6 @@ class LocalFileStorageService(IFileStorageService):
         return file_path
     
     def fetch_file(self, path: str) -> DataFrame:
-        return pd.read_excel(path)
+        return pd.read_excel(path, index_col=0)
 
 local_file_storage_service = LocalFileStorageService()

@@ -1,6 +1,7 @@
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from typing import List
 
 from app.models.category import Category
 from app.crud.crud_category import crud_category, CategoryCrud
@@ -28,6 +29,10 @@ class CategoryService:
             raise InvalidCategoryName()
 
         return category
+    
+    def get_categories_by_type(self, db: Session, type: str) -> List[Category]:
+        categories: List[Category] = self.crud_category.get_categories_by_type(db, type)
+        return categories
 
 
     

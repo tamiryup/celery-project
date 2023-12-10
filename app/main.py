@@ -40,8 +40,9 @@ def upload_file(category_name: str, file: UploadFile, db: Session = Depends(deps
     return Response(status_code=200)
 
 @app.get("/sum-type")
-def sum_type(type: str):
-    return {"message": "Sum Type"}
+def sum_type(type: str, db: Session = Depends(deps.get_db)):
+    sum: float = file_service.sum_files_by_category_type(db, type)
+    return sum
 
 @app.get("/find-regions")
 def find_regions(search_term: str):
