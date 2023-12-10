@@ -1,9 +1,11 @@
-from fastapi import FastAPI, UploadFile, Depends, Response
+from fastapi import FastAPI, UploadFile, Depends, Response, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, engine, Base
 from app.models.category import Category
 from app.models.excel_file import ExcelFile
+from app.exceptions import NameAlreadyExists, InvalidCategoryName
 import app.deps as deps
 
 from app.services.category_service import category_service
@@ -12,6 +14,20 @@ from app.services.file_service import file_service
 Base.metadata.create_all(bind=engine) # create db
 
 app = FastAPI()
+
+###### EXCEPTIONS ######
+
+@app.exception_handler(InvalidCategoryName)
+async def invalid_category_name_handler(request: Request, exc: InvalidCategoryName):
+    return JSONResponse(status_code=404, content={"message": str(exc)})
+
+@app.exception_handler(NameAlreadyExists)
+async def invalid_category_name_handler(request: Request, exc: NameAlreadyExists):
+    return JSONResponse(status_code=400, content={"message": str(exc)})
+
+
+
+###### ROUTES ######
 
 @app.get("/create-category", status_code=200)
 def create_category(name: str, region: str, type: str, db: Session = Depends(deps.get_db)):
