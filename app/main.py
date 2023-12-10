@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, Depends
+from fastapi import FastAPI, UploadFile, Depends, Response
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, engine, Base
@@ -15,11 +15,13 @@ app = FastAPI()
 
 @app.get("/create-category", status_code=200)
 def create_category(name: str, region: str, type: str, db: Session = Depends(deps.get_db)):
-    return category_service.create(db, name, region, type).id
+    category: Category =  category_service.create(db, name, region, type)
+    return category.id
 
 @app.post("/upload-file", status_code=200)
-def upload_file(category_name: str, file: UploadFile):
-    file_service.create(category_name, file)
+def upload_file(category_name: str, file: UploadFile, db: Session = Depends(deps.get_db)):
+    file_service.create_by_category_name(db, category_name, file)
+    return Response(status_code=200)
 
 @app.get("/sum-type")
 def sum_type(type: str):

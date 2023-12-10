@@ -14,6 +14,9 @@ class CategoryCrud:
 
     def get_category_by_id(self, db: Session, id: int) -> Optional[Category]:
         return db.query(Category).filter(Category.id == id).first()
+    
+    def get_category_by_name(self, db: Session, name: str) -> Optional[Category]:
+        return db.query(Category).filter(Category.name == name).first()
 
     def get_categories_by_region(self, db: Session, region: str) -> List[Category]:
         return db.query(Category).filter(Category.region == region).all()
