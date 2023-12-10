@@ -7,6 +7,7 @@ from app.models.excel_file import ExcelFile
 import app.deps as deps
 
 from app.services.category_service import category_service
+from app.services.file_service import file_service
 
 Base.metadata.create_all(bind=engine) # create db
 
@@ -16,9 +17,9 @@ app = FastAPI()
 def create_category(name: str, region: str, type: str, db: Session = Depends(deps.get_db)):
     return category_service.create(db, name, region, type).id
 
-@app.post("/upload-file")
-def upload_file(category_name: str, file: UploadFile):
-    return {"message": file.content_type}
+@app.post("/upload-file", status_code=200)
+async def upload_file(category_name: str, file: UploadFile):
+    await file_service.create(category_name, file)
 
 @app.get("/sum-type")
 def sum_type(type: str):
