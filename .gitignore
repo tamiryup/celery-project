@@ -1,3 +1,5 @@
 __pycache__
 
 celery-excel.db
+
+uploads/*
