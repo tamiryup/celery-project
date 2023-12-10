@@ -3,6 +3,7 @@ from pandas import DataFrame
 import pandas as pd
 import uuid
 import os
+import io
 
 from app.services.file_storage_service import IFileStorageService
 
@@ -11,7 +12,7 @@ class LocalFileStorageService(IFileStorageService):
     def __init__(self):
         self.directory_name = "./uploads"
 
-    async def upload_file(self, file: UploadFile) -> str:
+    def upload_file(self, file: UploadFile) -> str:
         filename = uuid.uuid1()
         file_path = f"{self.directory_name}/{filename}.xlsx"
 
@@ -20,8 +21,8 @@ class LocalFileStorageService(IFileStorageService):
             os.makedirs(self.directory_name)
 
         # save the file to the specified path
-        with open(file_path, "wb") as file_output:
-            file_output.write(file.file.read())
+        df = pd.read_excel(io.BytesIO(file.file.read()))
+        df.to_excel(file_path)
         
         return file_path
     

@@ -18,8 +18,8 @@ def create_category(name: str, region: str, type: str, db: Session = Depends(dep
     return category_service.create(db, name, region, type).id
 
 @app.post("/upload-file", status_code=200)
-async def upload_file(category_name: str, file: UploadFile):
-    await file_service.create(category_name, file)
+def upload_file(category_name: str, file: UploadFile):
+    file_service.create(category_name, file)
 
 @app.get("/sum-type")
 def sum_type(type: str):

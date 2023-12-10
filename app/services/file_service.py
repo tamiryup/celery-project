@@ -12,9 +12,9 @@ class FileService:
         self.crud_excel_file = crud_excel_file
         self.file_storage_service = file_storage_service
 
-    async def create(self, category_name: str, file: UploadFile):
+    def create(self, category_name: str, file: UploadFile):
         print(f"category name is: {category_name}")
-        await self.file_storage_service.upload_file(file)
+        self.file_storage_service.upload_file(file)
 
 
 
