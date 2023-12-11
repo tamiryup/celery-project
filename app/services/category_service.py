@@ -30,9 +30,17 @@ class CategoryService:
 
         return category
     
-    def get_categories_by_type(self, db: Session, type: str) -> List[Category]:
-        categories: List[Category] = self.crud_category.get_categories_by_type(db, type)
+    def get_category_ids_by_type(self, db: Session, type: str) -> List[int]:
+        categories: List[int] = self.crud_category.get_category_ids_by_type(db, type)
         return categories
+    
+    def get_distinct_regions(self, db: Session) -> List[str]:
+        regions: List[str] = self.crud_category.get_distinct_regions(db)
+        return regions
+    
+    def get_category_ids_by_region(self, db: Session, region: str) -> List[int]:
+        category_ids: List[int] = self.crud_category.get_category_ids_by_region(db, region)
+        return category_ids
 
 
     

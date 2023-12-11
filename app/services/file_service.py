@@ -28,22 +28,22 @@ class FileService:
         excel_file: ExcelFile = self.create(db, category.id, file_addr)
         return excel_file
     
+    def get_files_by_category_ids(self, db: Session, category_ids: List[int]) -> List[ExcelFile]:
+        return self.crud_excel_file.get_files_by_category_ids(db, category_ids)
+    
     def calc_file_sum(self, file: ExcelFile) -> float:
         df: DataFrame = self.file_storage_service.fetch_file(file.file_addr)
-        print(df)
         sum: float = 0
         for column in df.columns:
             for index, value in df[column].items():
                 if (type(value) == int or type(value) == float) and not pd.isna(value):
-                    print(value)
                     sum += value
         return sum
 
     
     def sum_files_by_category_type(self, db: Session, category_type: str) -> float:
-        categories: List[Category] = self.category_service.get_categories_by_type(db, category_type)
-        category_ids: List[int] = list(map(lambda category: category.id, categories)) #TODO: consider querying just the ids
-        files: List[ExcelFile] = self.crud_excel_file.get_files_by_category_ids(db, category_ids)
+        category_ids: List[int] = self.category_service.get_category_ids_by_type(db, category_type)
+        files: List[ExcelFile] = self.get_files_by_category_ids(db, category_ids)
 
         file_list_to_update: List[ExcelFile] = []
         sums_list: List[float] = []
@@ -61,6 +61,36 @@ class FileService:
             crud_excel_file.update_files_sum(db, file_list_to_update, sums_list)
 
         return sum
+    
+    def check_search_term_in_file(self, file: ExcelFile, search_term: str) -> bool:
+        df: DataFrame = self.file_storage_service.fetch_file(file.file_addr)
+
+        for column in df.columns:
+            for index, value in df[column].items():
+                if value == search_term:
+                    return True
+                
+        return False
+
+    def check_search_term_in_region(self, db: Session, region: str, search_term: str) -> bool:
+        region_category_ids: List[int] = category_service.get_category_ids_by_region(db, region)
+        region_files: List[ExcelFile] = self.get_files_by_category_ids(db, region_category_ids)
+
+        for file in region_files:
+            if self.check_search_term_in_file(file, search_term):
+                return True
+            
+        return False
+
+    def all_regions_containing_term(self, db: Session, search_term: str) -> List[str]:
+        regions: List[str] = []
+        all_regions: List[str] = category_service.get_distinct_regions(db)
+
+        for region in all_regions:
+            if self.check_search_term_in_region(db, region, search_term):
+                regions.append(region)
+
+        return regions
 
 
 

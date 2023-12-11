@@ -18,11 +18,14 @@ class CategoryCrud:
     def get_category_by_name(self, db: Session, name: str) -> Optional[Category]:
         return db.query(Category).filter(Category.name == name).first()
 
-    def get_categories_by_region(self, db: Session, region: str) -> List[Category]:
-        return db.query(Category).filter(Category.region == region).all()
+    def get_category_ids_by_region(self, db: Session, region: str) -> List[int]:
+        return [result[0] for result in db.query(Category.id).filter(Category.region == region).all()]
 
-    def get_categories_by_type(self, db: Session, type: str) -> List[Category]:
-        return db.query(Category).filter(Category.type == type).all()
+    def get_category_ids_by_type(self, db: Session, type: str) -> List[int]:
+        return [result[0] for result in db.query(Category.id).filter(Category.type == type).all()]
+    
+    def get_distinct_regions(self, db: Session) -> List[str]:
+        return [result[0] for result in db.query(Category.region).distinct().all()]
     
 
 crud_category = CategoryCrud() # instantiate CategoryCrud module

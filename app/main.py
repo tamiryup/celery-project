@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, Depends, Response, Request
 from fastapi.responses import JSONResponse
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, engine, Base
@@ -36,6 +37,9 @@ def create_category(name: str, region: str, type: str, db: Session = Depends(dep
 
 @app.post("/upload-file", status_code=200)
 def upload_file(category_name: str, file: UploadFile, db: Session = Depends(deps.get_db)):
+    if file.content_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        return JSONResponse(status_code=400, content={"message": "Please upload xlsx file"})
+
     file_service.create_by_category_name(db, category_name, file)
     return Response(status_code=200)
 
@@ -45,5 +49,6 @@ def sum_type(type: str, db: Session = Depends(deps.get_db)):
     return sum
 
 @app.get("/find-regions")
-def find_regions(search_term: str):
-    return {"message": "Find Regions"}
+def find_regions(search_term: str, db: Session = Depends(deps.get_db)):
+    regions: List[str] = file_service.all_regions_containing_term(db, search_term)
+    return JSONResponse(status_code=200, content=regions)
